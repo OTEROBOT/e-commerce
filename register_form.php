@@ -51,6 +51,14 @@
 </head>
 <body>
 
+<?php
+// แสดง alert ถ้ามี parameter msg
+if (isset($_GET['msg'])) {
+    $msg = htmlspecialchars($_GET['msg']); // ป้องกัน XSS
+    echo "<script>alert('$msg');</script>";
+}
+?>
+
 <form action="register.php" method="post">
     <h2>ฟอร์มสมัครสมาชิก</h2>
 

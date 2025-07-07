@@ -44,7 +44,7 @@ include "conn.php"; // เชื่อมฐานข้อมูล
 
 <table>
     <tr>
-        <th>ID</th>
+        <th>ลำดับ</th> <!-- เปลี่ยนจาก ID เป็น ลำดับ -->
         <th>Username</th>
         <th>ชื่อ - นามสกุล</th>
         <th>Email</th>
@@ -53,18 +53,20 @@ include "conn.php"; // เชื่อมฐานข้อมูล
     </tr>
 
 <?php
-$sql = "SELECT * FROM customer";
+$sql = "SELECT * FROM customer ORDER BY id ASC";
 $result = $conn->query($sql);
+
+$no = 1; // เริ่มลำดับที่ 1
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         echo "<tr>
-                <td>".$row['id']."</td>
-                <td>".$row['username']."</td>
-                <td>".$row['name']."</td>
-                <td>".$row['email']."</td>
-                <td>".$row['mobile_phone']."</td>
-                <td>".$row['address']."</td>
+                <td>" . $no++ . "</td>
+                <td>" . $row['username'] . "</td>
+                <td>" . $row['name'] . "</td>
+                <td>" . $row['email'] . "</td>
+                <td>" . $row['mobile_phone'] . "</td>
+                <td>" . $row['address'] . "</td>
               </tr>";
     }
 } else {
@@ -73,8 +75,8 @@ if ($result->num_rows > 0) {
 
 $conn->close();
 ?>
-
 </table>
+
 
 </body>
 </html>
