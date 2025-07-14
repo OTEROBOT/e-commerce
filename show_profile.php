@@ -17,26 +17,58 @@ $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'defa
 // อัปเดตข้อมูลเมื่อกด submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
+    $username = trim($_POST['username']);
     $email = trim($_POST['email']);
     $mobile_phone = trim($_POST['mobile_phone']);
     $address = trim($_POST['address']);
+    $password = trim($_POST['password']);
     
     // ตรวจสอบความถูกต้องของข้อมูล
     $errors = [];
     if (empty($name)) $errors[] = "กรุณากรอกชื่อ";
+    if (empty($username)) $errors[] = "กรุณากรอกชื่อผู้ใช้";
     if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "กรุณากรอกอีเมลที่ถูกต้อง";
     if (empty($mobile_phone)) $errors[] = "กรุณากรอกเบอร์โทร";
     
+    // ตรวจสอบชื่อผู้ใช้ซ้ำ
+    if ($username !== $user['username']) {
+        $check_username_sql = "SELECT id FROM customer WHERE username = ? AND id != ?";
+        $check_stmt = $conn->prepare($check_username_sql);
+        $check_stmt->bind_param("si", $username, $user_id);
+        $check_stmt->execute();
+        if ($check_stmt->get_result()->num_rows > 0) {
+            $errors[] = "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว";
+        }
+    }
+
+    // ตรวจสอบรหัสผ่าน (ถ้ามีการกรอก)
+    if (!empty($password)) {
+        if (strlen($password) < 6) {
+            $errors[] = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
+        }
+    }
+
     if (empty($errors)) {
-        $update_sql = "UPDATE customer SET name = ?, email = ?, mobile_phone = ?, address = ? WHERE id = ?";
-        $update_stmt = $conn->prepare($update_sql);
-        $update_stmt->bind_param("ssssi", $name, $email, $mobile_phone, $address, $user_id);
+        // เตรียมคำสั่ง SQL สำหรับอัปเดต
+        if (!empty($password)) {
+            // ถ้ามีการกรอกรหัสผ่านใหม่ ให้แฮชรหัสผ่าน
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $update_sql = "UPDATE customer SET name = ?, username = ?, email = ?, mobile_phone = ?, address = ?, password = ? WHERE id = ?";
+            $update_stmt = $conn->prepare($update_sql);
+            $update_stmt->bind_param("ssssssi", $name, $username, $email, $mobile_phone, $address, $hashed_password, $user_id);
+        } else {
+            // ถ้าไม่มีการเปลี่ยนรหัสผ่าน
+            $update_sql = "UPDATE customer SET name = ?, username = ?, email = ?, mobile_phone = ?, address = ? WHERE id = ?";
+            $update_stmt = $conn->prepare($update_sql);
+            $update_stmt->bind_param("sssssi", $name, $username, $email, $mobile_phone, $address, $user_id);
+        }
         
         if ($update_stmt->execute()) {
             // อัปเดตข้อมูลใน session
             $_SESSION['user_name'] = $name;
+            $_SESSION['username'] = $username;
             // รีเฟรชหน้าเพื่อแสดงข้อมูลใหม่
-            header("Location: show_profile.php");
+            header("Location: show_profile.php?msg=อัปเดตข้อมูลสำเร็จ");
             exit();
         } else {
             $errors[] = "เกิดข้อผิดพลาดในการอัปเดตข้อมูล";
@@ -129,6 +161,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-align: center;
         }
 
+        .success-message {
+            color: #4caf50;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
         .change-btn, .edit-btn, .cancel-btn, .submit-btn {
             display: inline-block;
             margin: 10px 5px 0 5px;
@@ -216,6 +258,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <img src="profile_images/<?= htmlspecialchars($profile_image) ?>" alt="รูปโปรไฟล์">
     <h2>ยินดีต้อนรับคุณ <?= htmlspecialchars($user['name']) ?></h2>
     
+    <?php if (isset($_GET['msg'])): ?>
+        <div class="success-message"><?= htmlspecialchars($_GET['msg']) ?></div>
+    <?php endif; ?>
+
     <?php if (!empty($errors)): ?>
         <div class="error-message">
             <?php foreach ($errors as $error): ?>
@@ -234,6 +280,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="text" name="name" value="<?= htmlspecialchars($user['name']) ?>" required>
             </p>
             <p>
+                <strong>ชื่อผู้ใช้:</strong><br>
+                <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required>
+            </p>
+            <p>
+                <strong>รหัสผ่านใหม่:</strong><br>
+                <input type="password" name="password" placeholder="กรอกรหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน)">
+            </p>
+            <p>
                 <strong>Email:</strong><br>
                 <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
             </p>
@@ -250,7 +304,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     <?php else: ?>
         <div class="profile-info">
-            <p><strong>Username:</strong> <?= htmlspecialchars($user['username']) ?></p>
+            <p><strong>ชื่อผู้ใช้:</strong> <?= htmlspecialchars($user['username']) ?></p>
             <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p>
             <p><strong>เบอร์โทร:</strong> <?= htmlspecialchars($user['mobile_phone']) ?></p>
             <p><strong>ที่อยู่:</strong> <?= nl2br(htmlspecialchars($user['address'])) ?></p>

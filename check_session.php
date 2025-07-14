@@ -1,7 +1,30 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login_form.php?error=กรุณาเข้าสู่ระบบก่อน");
+include "conn.php";
+
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['sess_id']) || $_SESSION['sess_id'] !== session_id()) {
+    header("Location: login_form.php?error=" . urlencode("กรุณาเข้าสู่ระบบก่อน"));
     exit();
+}
+
+// ตรวจสอบ is_admin จากฐานข้อมูลหากยังไม่ได้ตั้งค่าในเซสชัน
+if (!isset($_SESSION['is_admin'])) {
+    $user_id = $_SESSION['user_id'];
+    $sql = "SELECT is_admin FROM customer WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $_SESSION['is_admin'] = $row['is_admin'];
+    } else {
+        // หากไม่พบผู้ใช้ ให้ล้างเซสชันและเปลี่ยนเส้นทาง
+        session_unset();
+        session_destroy();
+        header("Location: login_form.php?error=" . urlencode("เซสชันไม่ถูกต้อง"));
+        exit();
+    }
+    $stmt->close();
+    $result->close();
 }
 ?>
