@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES['profile_image'])) {
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("si", $new_name, $user_id);
             $stmt->execute();
-            header("Location: show_profile.php?msg=อัปโหลดรูปเรียบร้อยแล้ว");
+            header("Location: show_profile.php?edit=true&msg=อัปโหลดรูปเรียบร้อยแล้ว");
             exit();
         } else {
             $error = "เกิดข้อผิดพลาดในการอัปโหลด";
@@ -43,82 +43,151 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES['profile_image'])) {
     <meta charset="UTF-8">
     <title>อัปโหลดรูปโปรไฟล์</title>
     <style>
-        
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333333;
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .preview {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            font-size: 14px;
+            color: #666;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input[type="file"]::-webkit-file-upload-button {
+            background-color: #e0f2f1;
+            color: #00796b;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 14px;
+        }
+
+        input[type="file"]::-webkit-file-upload-button:hover {
+            background-color: #b2dfdb;
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: #4caf50;
+            color: white;
+            font-size: 15px;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            font-size: 14px;
+            text-decoration: none;
+            color: #2196f3;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error-msg {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-bottom: 15px;
+            background-color: #ffebee;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        @media screen and (max-width: 500px) {
             .container {
-        background-color: #ffffff;
-        padding: 30px;
-        border-radius: 16px;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-        width: 100%;
-        max-width: 420px;
-        text-align: center;
-    }
-
-    h2 {
-        margin-bottom: 20px;
-        color: #333;
-    }
-
-    input[type="file"] {
-        margin: 0 auto 20px;
-    }
-
-    img.preview {
-        width: 120px;
-        height: 120px;
-        object-fit: cover;
-        border-radius: 50%;
-        margin-bottom: 15px;
-        border: 2px solid #ccc;
-        display: none;
-    }
-
-    button {
-        padding: 10px 20px;
-        background-color: #4CAF50;
-        color: white;
-        font-size: 15px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background-color: #45a049;
-    }
-
-    .back-link {
-        display: block;
-        margin-top: 20px;
-        font-size: 14px;
-        text-decoration: none;
-        color: #4CAF50;
-    }
-
-    .back-link:hover {
-        text-decoration: underline;
-    }
-
-    .error-msg {
-        color: #d32f2f;
-        margin-bottom: 15px;
-        font-size: 14px;
-    }
-</style>
-
-        
-        </style>
+                padding: 20px;
+                border-radius: 12px;
+            }
+        }
+    </style>
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('preview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 </head>
 <body>
-    <h2>อัปโหลดรูปโปรไฟล์</h2>
-    <?php if (isset($error)) echo "<p style='color:red;'>$error</p>"; ?>
-    <form action="" method="post" enctype="multipart/form-data">
-    <img id="preview" class="preview" alt="Preview">
-    <input type="file" name="profile_image" accept="image/*" required onchange="previewImage(this)">
-    <button type="submit">อัปโหลด</button>
-</form>
-
-<a href="show_profile.php" class="back-link">← กลับไปหน้าข้อมูลสมาชิก</a>
-
+    <div class="container">
+        <h2>อัปโหลดรูปโปรไฟล์</h2>
+        <?php if (isset($error)): ?>
+            <div class="error-msg"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+        <form action="" method="post" enctype="multipart/form-data">
+            <img id="preview" class="preview" alt="Preview">
+            <div class="file-input-wrapper">
+                <input type="file" name="profile_image" accept="image/*" required onchange="previewImage(this)">
+            </div>
+            <button type="submit">อัปโหลด</button>
+        </form>
+        <a href="show_profile.php?edit=true" class="back-link">← กลับไปหน้าแก้ไขข้อมูล</a>
+    </div>
 </body>
 </html>
