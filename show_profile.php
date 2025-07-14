@@ -255,7 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 
 <div class="profile-card">
-    <img src="profile_images/<?= htmlspecialchars($profile_image) ?>" alt="รูปโปรไฟล์">
+    <img src="uploads/<?= htmlspecialchars($profile_image) ?>" alt="รูปโปรไฟล์">
     <h2>ยินดีต้อนรับคุณ <?= htmlspecialchars($user['name']) ?></h2>
     
     <?php if (isset($_GET['msg'])): ?>
