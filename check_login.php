@@ -13,9 +13,12 @@ $result = $stmt->get_result();
 
 if ($result->num_rows === 1) {
     $user = $result->fetch_assoc();
+
+    // ต้องใช้ password_verify เพื่อเทียบกับ password_hash
     if (password_verify($password, $user['password'])) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
+        $_SESSION['sess_id'] = session_id(); // เหมือนใน lab
         header("Location: show_profile.php");
         exit();
     } else {
@@ -26,3 +29,4 @@ if ($result->num_rows === 1) {
     header("Location: login_form.php?error=ไม่พบชื่อผู้ใช้");
     exit();
 }
+?>

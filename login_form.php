@@ -19,6 +19,7 @@
       box-shadow: 0 8px 16px rgba(0,0,0,0.1);
       width: 100%;
       max-width: 400px;
+      position: relative;
     }
     h2 {
       text-align: center;
@@ -40,30 +41,44 @@
       border-radius: 8px;
       font-size: 16px;
     }
-    button:hover {
-      background-color: #45a049;
-    }
-    .error {
-      color: red;
+    .error-popup {
+      position: absolute;
+      top: -50px;
+      left: 0;
+      right: 0;
+      background-color: #ffdddd;
+      color: #b30000;
+      border: 1px solid #ffaaaa;
+      padding: 10px;
+      border-radius: 8px;
       text-align: center;
-      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .register-link {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .register-link a {
+      text-decoration: none;
+      color: #4CAF50;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-
 <div class="form-container">
-  <h2>เข้าสู่ระบบ</h2>
   <?php if (isset($_GET['error'])): ?>
-    <div class="error"><?= htmlspecialchars($_GET['error']) ?></div>
+    <div class="error-popup"><?= htmlspecialchars($_GET['error']) ?></div>
   <?php endif; ?>
-
+  <h2>เข้าสู่ระบบ</h2>
   <form method="POST" action="check_login.php">
     <input type="text" name="username" placeholder="ชื่อผู้ใช้" required>
     <input type="password" name="password" placeholder="รหัสผ่าน" required>
     <button type="submit">เข้าสู่ระบบ</button>
   </form>
+  <div class="register-link">
+    ยังไม่มีบัญชี? <a href="register_form.php">สมัครสมาชิก</a>
+  </div>
 </div>
-
 </body>
 </html>

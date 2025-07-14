@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>แบบฟอร์มสมัครสมาชิก</title>
+    <title>ฟอร์มสมัครสมาชิก</title>
     <link rel="stylesheet" href="css_form.css">
     <style>
         body {
@@ -12,24 +12,33 @@
             justify-content: center;
             padding-top: 50px;
         }
-        form {
+
+        .form-container {
             background-color: #fff;
             padding: 30px;
             border-radius: 10px;
             width: 400px;
             box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            position: relative;
         }
+
         label {
             display: block;
             margin-top: 15px;
             margin-bottom: 5px;
         }
-        input[type="text"], input[type="password"], input[type="email"], input[type="tel"], textarea {
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="tel"],
+        textarea {
             width: 100%;
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
         }
+
         button {
             margin-top: 20px;
             width: 100%;
@@ -40,22 +49,55 @@
             border-radius: 5px;
             font-size: 16px;
         }
+
         button:hover {
             background-color: #45a049;
         }
+
         h2 {
             text-align: center;
             margin-bottom: 20px;
+        }
+
+        .popup-msg {
+            position: absolute;
+            top: -50px;
+            left: 0;
+            right: 0;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .login-link {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .login-link a {
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
+<div class="form-container">
+
 <?php
-// แสดง alert ถ้ามี parameter msg
+// แสดงข้อความ popup สวยงามถ้ามี msg
 if (isset($_GET['msg'])) {
-    $msg = htmlspecialchars($_GET['msg']); // ป้องกัน XSS
-    echo "<script>alert('$msg');</script>";
+    $msg = htmlspecialchars($_GET['msg']);
+    echo "<div class='popup-msg'>$msg</div>";
 }
 ?>
 
@@ -82,6 +124,12 @@ if (isset($_GET['msg'])) {
 
     <button type="submit">ส่งข้อมูลการสมัคร</button>
 </form>
+
+<div class="login-link">
+    เป็นสมาชิกอยู่แล้ว? <a href="login_form.php">เข้าสู่ระบบ</a>
+</div>
+
+</div>
 
 </body>
 </html>
