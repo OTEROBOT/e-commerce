@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 include "conn.php";
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['sess_id']) || $_SESSION['sess_id'] !== session_id()) {
@@ -7,7 +9,6 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['sess_id']) || $_SESSION['s
     exit();
 }
 
-// ตรวจสอบ is_admin จากฐานข้อมูลหากยังไม่ได้ตั้งค่าในเซสชัน
 if (!isset($_SESSION['is_admin'])) {
     $user_id = $_SESSION['user_id'];
     $sql = "SELECT is_admin FROM customer WHERE id = ?";
@@ -18,7 +19,6 @@ if (!isset($_SESSION['is_admin'])) {
     if ($row = $result->fetch_assoc()) {
         $_SESSION['is_admin'] = $row['is_admin'];
     } else {
-        // หากไม่พบผู้ใช้ ให้ล้างเซสชันและเปลี่ยนเส้นทาง
         session_unset();
         session_destroy();
         header("Location: login_form.php?error=" . urlencode("เซสชันไม่ถูกต้อง"));

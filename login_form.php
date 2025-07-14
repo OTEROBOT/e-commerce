@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>เข้าสู่ระบบ</title>
   <style>
     body {
@@ -102,20 +101,7 @@
   </div>
 </div>
 <script>
-  // ล้างข้อมูลฟอร์มเมื่อโหลดหน้า
   document.getElementById('loginForm').reset();
-  setTimeout(() => {
-    const message = document.querySelector('.message, .error');
-    if (message) message.style.display = 'none';
-}, 5000);
-  // ป้องกันการส่งฟอร์มซ้ำเมื่อรีเฟรชหน้า
-  window.addEventListener('beforeunload', () => {
-    document.getElementById('loginForm').reset();
-  });
-  // ป้องกันการส่งฟอร์มซ้ำเมื่อกดปุ่มย้อนกลับ
-  window.addEventListener('popstate', () => {
-    document.getElementById('loginForm').reset();
-  });
 </script>
 </body>
 </html>
