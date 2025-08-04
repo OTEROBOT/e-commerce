@@ -254,6 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 <body>
     <div class="navbar">
         <a href="admin_profile.php">โปรไฟล์</a>
+        <a href="product_list.php">ลิสสินค้า</a> <!-- เพิ่มลิงก์ไปหน้า ลิสสินค้า -->
         <a href="showmember.php">จัดการสมาชิก</a>
         <a href="logout.php">ออกจากระบบ</a>
     </div>
