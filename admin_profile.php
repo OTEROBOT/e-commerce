@@ -47,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         $check_stmt->close();
     }
 
-    // จัดการการอัปโหลดภาพ
     $profile_image = $admin['profile_image'] ?? null;
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = "uploads/";
@@ -60,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
         if (!in_array($image_file_type, $allowed_types)) {
             $errors[] = "เฉพาะไฟล์ JPG, JPEG, PNG, GIF เท่านั้นที่อนุญาต";
-        } elseif ($_FILES['profile_image']['size'] > 5000000) { // 5MB
+        } elseif ($_FILES['profile_image']['size'] > 5000000) {
             $errors[] = "ไฟล์ภาพต้องไม่เกิน 5MB";
         } else {
             if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $target_file)) {
@@ -98,14 +97,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>โปรไฟล์แอดมิน</title>
     <style>
         body {
             font-family: 'Sarabun', sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            padding: 0;
         }
         .navbar {
             background-color: #4CAF50;
@@ -130,37 +127,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        .profile-item {
-            margin-bottom: 15px;
-        }
-        .profile-item label {
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        .profile-item span {
-            color: #333;
-        }
-        .profile-image {
-            margin-bottom: 15px;
-        }
-        .profile-image img {
-            max-width: 150px;
-            border-radius: 50%;
-        }
-        .message {
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            text-align: center;
-        }
-        .success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-        .error {
-            background-color: #ffebee;
-            color: #d32f2f;
-        }
+        .profile-item { margin-bottom: 15px; }
+        .profile-item label { font-weight: bold; }
+        .profile-image img { max-width: 150px; border-radius: 50%; }
+        .message { padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 15px; }
+        .success { background-color: #e8f5e9; color: #2e7d32; }
+        .error { background-color: #ffebee; color: #d32f2f; }
         .edit-btn {
             background-color: #2196f3;
             color: white;
@@ -170,27 +142,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             cursor: pointer;
             text-decoration: none;
         }
-        .edit-btn:hover {
-            background-color: #1976d2;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
         .modal-content {
             background-color: white;
             padding: 20px;
             border-radius: 8px;
             width: 90%;
             max-width: 400px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .modal-content input, .modal-content textarea, .modal-content input[type="file"] {
             width: 100%;
@@ -198,11 +156,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             margin: 5px 0 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-        }
-        .modal-content label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            display: block;
         }
         .modal-content button {
             background-color: #4CAF50;
@@ -213,28 +166,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             cursor: pointer;
             margin-right: 10px;
         }
-        .modal-content button:hover {
-            background-color: #45a049;
-        }
         .cancel-btn {
             background-color: #f44336;
-        }
-        .cancel-btn:hover {
-            background-color: #d32f2f;
-        }
-        @media screen and (max-width: 600px) {
-            .navbar {
-                padding: 15px 25px;
-            }
-            .navbar a {
-                margin-right: 15px;
-                font-size: 14px;
-            }
-            .edit-btn {
-                display: block;
-                width: 100%;
-                margin-bottom: 10px;
-            }
         }
     </style>
     <script>
@@ -254,15 +187,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 <body>
     <div class="navbar">
         <a href="admin_profile.php">โปรไฟล์</a>
-        <a href="product_list.php">ลิสสินค้า</a> <!-- เพิ่มลิงก์ไปหน้า ลิสสินค้า -->
+        <a href="product_list.php">ลิสสินค้า</a>
         <a href="showmember.php">จัดการสมาชิก</a>
         <a href="logout.php">ออกจากระบบ</a>
     </div>
 
     <div class="profile-container">
-        <?php if (isset($_GET['error'])): ?>
-            <div class="error"><?= htmlspecialchars(urldecode($_GET['error'])) ?></div>
-        <?php endif; ?>
         <?php if (!empty($errors)): ?>
             <div class="error">
                 <?php foreach ($errors as $error): ?>
@@ -270,39 +200,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-        <?php if (isset($success)): ?>
+        <?php if (!empty($success)): ?>
             <div class="success"><?= htmlspecialchars($success) ?></div>
-        <?php unset($success); ?>
         <?php endif; ?>
 
         <h2>โปรไฟล์แอดมิน</h2>
         <h3>ยินดีต้อนรับคุณ <?= htmlspecialchars($admin['name']) ?></h3>
+
         <?php if ($admin): ?>
             <?php if ($admin['profile_image']): ?>
                 <div class="profile-image">
                     <img src="uploads/<?= htmlspecialchars($admin['profile_image']) ?>" alt="Profile Image">
                 </div>
             <?php endif; ?>
-            <div class="profile-item">
-                <label>ชื่อผู้ใช้:</label>
-                <span><?= htmlspecialchars($admin['username']) ?></span>
-            </div>
-            <div class="profile-item">
-                <label>ชื่อ - นามสกุล:</label>
-                <span><?= htmlspecialchars($admin['name']) ?></span>
-            </div>
-            <div class="profile-item">
-                <label>อีเมล:</label>
-                <span><?= htmlspecialchars($admin['email']) ?></span>
-            </div>
-            <div class="profile-item">
-                <label>เบอร์โทรศัพท์:</label>
-                <span><?= htmlspecialchars($admin['mobile_phone']) ?></span>
-            </div>
-            <div class="profile-item">
-                <label>ที่อยู่:</label>
-                <span><?= nl2br(htmlspecialchars($admin['address'])) ?></span>
-            </div>
+            <div class="profile-item"><label>ชื่อผู้ใช้:</label> <?= htmlspecialchars($admin['username']) ?></div>
+            <div class="profile-item"><label>ชื่อ - นามสกุล:</label> <?= htmlspecialchars($admin['name']) ?></div>
+            <div class="profile-item"><label>อีเมล:</label> <?= htmlspecialchars($admin['email']) ?></div>
+            <div class="profile-item"><label>เบอร์โทรศัพท์:</label> <?= htmlspecialchars($admin['mobile_phone']) ?></div>
+            <div class="profile-item"><label>ที่อยู่:</label> <?= nl2br(htmlspecialchars($admin['address'])) ?></div>
             <div style="margin-top: 20px;">
                 <a href="#" class="edit-btn" onclick="openEditModal()">แก้ไขข้อมูล</a>
             </div>
@@ -314,20 +229,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             <div class="modal-content">
                 <h3>แก้ไขข้อมูลโปรไฟล์</h3>
                 <form method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="edit_id" value="<?= $user_id ?>">
-                    <label>ชื่อผู้ใช้ (แก้ไขชื่อผู้ใช้ของคุณ)</label>
-                    <input type="text" name="username" id="edit_username" placeholder="ชื่อผู้ใช้" required>
-                    <label>ชื่อ - นามสกุล (แก้ไขชื่อและนามสกุลของคุณ)</label>
-                    <input type="text" name="name" id="edit_name" placeholder="ชื่อ - นามสกุล" required>
-                    <label>อีเมล (แก้ไขอีเมลของคุณ)</label>
-                    <input type="email" name="email" id="edit_email" placeholder="อีเมล" required>
-                    <label>เบอร์โทรศัพท์ (แก้ไขเบอร์โทรของคุณ)</label>
-                    <input type="text" name="mobile_phone" id="edit_mobile_phone" placeholder="เบอร์โทรศัพท์" required>
-                    <label>ที่อยู่ (แก้ไขที่อยู่ของคุณ)</label>
-                    <textarea name="address" id="edit_address" placeholder="ที่อยู่"></textarea>
-                    <label>รหัสผ่านใหม่ (ถ้าต้องการเปลี่ยนรหัสผ่าน)</label>
-                    <input type="password" name="password" placeholder="รหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน)">
-                    <label>ภาพโปรไฟล์ (อัปโหลดภาพใหม่)</label>
+                    <label>ชื่อผู้ใช้</label>
+                    <input type="text" name="username" id="edit_username" required>
+                    <label>ชื่อ - นามสกุล</label>
+                    <input type="text" name="name" id="edit_name" required>
+                    <label>อีเมล</label>
+                    <input type="email" name="email" id="edit_email" required>
+                    <label>เบอร์โทรศัพท์</label>
+                    <input type="text" name="mobile_phone" id="edit_mobile_phone" required>
+                    <label>ที่อยู่</label>
+                    <textarea name="address" id="edit_address"></textarea>
+                    <label>รหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน)</label>
+                    <input type="password" name="password">
+                    <label>ภาพโปรไฟล์</label>
                     <input type="file" name="profile_image" accept="image/*">
                     <button type="submit" name="update_profile">บันทึก</button>
                     <button type="button" class="cancel-btn" onclick="closeEditModal()">ยกเลิก</button>

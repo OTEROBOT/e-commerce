@@ -14,29 +14,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $origin = $_POST['origin'];
     $detail = $_POST['detail'];
     $price = $_POST['price'];
-    $target_dir = "gallery_products/";
-    $target_file = $target_dir . basename($_FILES["image"]["name"]);
     
-    // ตรวจสอบและอัปโหลดไฟล์ภาพ
+    $target_dir = "gallery_products/";
     $image = '';
+
+    // ตรวจสอบว่ามีการอัปโหลดภาพ
     if (!empty($_FILES["image"]["name"])) {
+        $target_file = $target_dir . basename($_FILES["image"]["name"]);
         if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
             $image = basename($_FILES["image"]["name"]);
         } else {
-            $image = ''; // ถ้าอัปโหลดล้มเหลว ให้บันทึกว่าง
             echo "Error uploading image: " . $_FILES["image"]["error"] . "<br>";
         }
     }
 
-    // ใช้ prepared statement เพื่อป้องกัน SQL Injection
-    $sql = "INSERT INTO product (productID, product_name, origin, details, price, image) VALUES (?, ?, ?, ?, ?, ?)";
+    // เพิ่มข้อมูลลงฐานข้อมูล
+    $sql = "INSERT INTO product (productID, product_name, origin, details, price, image) 
+            VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("issdsd", $productID, $product_name, $origin, $detail, $price, $image);
+    $stmt->bind_param("ssssds", $productID, $product_name, $origin, $detail, $price, $image);
+
     if ($stmt->execute()) {
         header("Location: product_list.php");
+        exit();
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "Error: " . $stmt->error;
     }
+
     $stmt->close();
     $conn->close();
 }
