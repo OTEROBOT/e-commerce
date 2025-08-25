@@ -1,5 +1,6 @@
 <?php
 include "conn.php";
+// ดึงข้อมูลจากตาราง product
 $sql = "SELECT productID, product_name, origin, price, details AS detail, image FROM product";
 $result = $conn->query($sql);
 ?>
@@ -60,6 +61,7 @@ $result = $conn->query($sql);
     </style>
 </head>
 <body>
+    <!-- แถบนำทาง -->
     <nav class="navbar">
         <a href="showProduct.php">รายการสินค้า</a>
         <a href="show_profile.php">โปรไฟล์</a>

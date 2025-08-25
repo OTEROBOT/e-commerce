@@ -1,47 +1,54 @@
 <?php
 include "check_session.php";
-// ตรวจสอบว่าเป็น Admin หรือไม่ ถ้าไม่ใช่ให้ redirect ไปหน้า login
+include "conn.php";
+
 if (!$_SESSION['is_admin']) {
     header("Location: login_form.php?error=" . urlencode("คุณไม่มีสิทธิ์เข้าถึงหน้านี้"));
     exit();
 }
 
-include 'conn.php';
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productID = $_POST['productID'];
     $product_name = $_POST['product_name'];
     $origin = $_POST['origin'];
-    $detail = $_POST['detail'];
     $price = $_POST['price'];
-    
-    $target_dir = "gallery_products/";
-    $image = '';
+    $detail = $_POST['detail'];
 
-    // ตรวจสอบว่ามีการอัปโหลดภาพ
-    if (!empty($_FILES["image"]["name"])) {
-        $target_file = $target_dir . basename($_FILES["image"]["name"]);
-        if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-            $image = basename($_FILES["image"]["name"]);
-        } else {
-            echo "Error uploading image: " . $_FILES["image"]["error"] . "<br>";
-        }
-    }
-
-    // เพิ่มข้อมูลลงฐานข้อมูล
-    $sql = "INSERT INTO product (productID, product_name, origin, details, price, image) 
-            VALUES (?, ?, ?, ?, ?, ?)";
+    // ตรวจสอบว่า productID ซ้ำหรือไม่
+    $sql = "SELECT productID FROM product WHERE productID = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssds", $productID, $product_name, $origin, $detail, $price, $image);
-
-    if ($stmt->execute()) {
-        header("Location: product_list.php");
+    $stmt->bind_param("s", $productID);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        header("Location: addProduct_form.php?error=" . urlencode("รหัสสินค้านี้มีอยู่แล้ว"));
         exit();
-    } else {
-        echo "Error: " . $stmt->error;
     }
 
-    $stmt->close();
-    $conn->close();
+    // จัดการการอัปโหลดรูปภาพ
+    $image = $_FILES['image']['name'];
+    $target_dir = "gallery_products/";
+    $target_file = $target_dir . basename($image);
+
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
+        $sql = "INSERT INTO product (productID, product_name, origin, price, details, image) 
+                VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sssdss", $productID, $product_name, $origin, $price, $detail, $image);
+
+        if ($stmt->execute()) {
+            header("Location: product_list.php?msg=" . urlencode("เพิ่มสินค้าสำเร็จ"));
+            exit();
+        } else {
+            header("Location: addProduct_form.php?error=" . urlencode("เกิดข้อผิดพลาด: " . $conn->error));
+            exit();
+        }
+        $stmt->close();
+    } else {
+        header("Location: addProduct_form.php?error=" . urlencode("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ"));
+        exit();
+    }
 }
+
+$conn->close();
 ?>

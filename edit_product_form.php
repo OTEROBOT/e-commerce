@@ -1,7 +1,27 @@
 <?php
 include "check_session.php";
+include "conn.php";
+
 if (!$_SESSION['is_admin']) {
     header("Location: login_form.php?error=" . urlencode("คุณไม่มีสิทธิ์เข้าถึงหน้านี้"));
+    exit();
+}
+
+if (!isset($_GET['productID'])) {
+    header("Location: product_list.php?error=" . urlencode("ไม่พบรหัสสินค้า"));
+    exit();
+}
+
+$productID = $_GET['productID'];
+$sql = "SELECT productID, product_name, origin, price, details, image FROM product WHERE productID = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $productID);
+$stmt->execute();
+$result = $stmt->get_result();
+$product = $result->fetch_assoc();
+
+if (!$product) {
+    header("Location: product_list.php?error=" . urlencode("ไม่พบสินค้า"));
     exit();
 }
 ?>
@@ -10,7 +30,7 @@ if (!$_SESSION['is_admin']) {
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>เพิ่มสินค้า</title>
+    <title>แก้ไขสินค้า</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -104,43 +124,7 @@ if (!$_SESSION['is_admin']) {
             text-align: center;
             margin-bottom: 20px;
         }
-
-        .error-message {
-            color: #f44336;
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
-        }
     </style>
-    <script>
-        function checkProductID() {
-            const productID = document.getElementById('productID').value;
-            const errorMessage = document.getElementById('productIDError');
-            if (productID === '') {
-                errorMessage.textContent = 'กรุณากรอกรหัสสินค้า';
-                errorMessage.style.display = 'block';
-                return;
-            }
-
-            // ตรวจสอบรหัสสินค้าซ้ำด้วย AJAX
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'check_product_id.php', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    if (xhr.responseText === 'exists') {
-                        errorMessage.textContent = 'รหัสสินค้านี้มีอยู่แล้ว';
-                        errorMessage.style.display = 'block';
-                        document.getElementById('submitBtn').disabled = true;
-                    } else {
-                        errorMessage.style.display = 'none';
-                        document.getElementById('submitBtn').disabled = false;
-                    }
-                }
-            };
-            xhr.send('productID=' + encodeURIComponent(productID));
-        }
-    </script>
 </head>
 <body>
     <nav class="navbar">
@@ -151,49 +135,51 @@ if (!$_SESSION['is_admin']) {
     </nav>
 
     <div class="container">
-        <h2>เพิ่มสินค้าใหม่</h2>
-        <form action="add_product.php" method="post" enctype="multipart/form-data" id="productForm">
-            <div class="form-group">
-                <label for="productID">รหัสสินค้า (ต้องไม่ซ้ำ)</label>
-                <input type="text" name="productID" id="productID" required placeholder="เช่น PRD001" oninput="checkProductID()">
-                <div id="productIDError" class="error-message"></div>
-            </div>
+        <h2>แก้ไขสินค้า</h2>
+        <form action="edit_product.php" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="productID" value="<?php echo htmlspecialchars($product['productID']); ?>">
             <div class="form-group">
                 <label for="product_name">ชื่อสินค้า</label>
-                <input type="text" name="product_name" required>
+                <input type="text" name="product_name" value="<?php echo htmlspecialchars($product['product_name']); ?>" required>
             </div>
             <div class="form-group">
                 <label for="origin">แหล่งที่มา</label>
                 <select name="origin" required>
                     <option value="">-- เลือกประเทศ --</option>
-                    <option value="Thailand">Thailand</option>
-                    <option value="Ethiopia">Ethiopia</option>
-                    <option value="Columbia">Columbia</option>
-                    <option value="Brazil">Brazil</option>
-                    <option value="Vietnam">Vietnam</option>
-                    <option value="India">India</option>
-                    <option value="Kenya">Kenya</option>
-                    <option value="Indonesia">Indonesia</option>
-                    <option value="Mexico">Mexico</option>
-                    <option value="Peru">Peru</option>
+                    <option value="Thailand" <?php echo $product['origin'] === 'Thailand' ? 'selected' : ''; ?>>Thailand</option>
+                    <option value="Ethiopia" <?php echo $product['origin'] === 'Ethiopia' ? 'selected' : ''; ?>>Ethiopia</option>
+                    <option value="Columbia" <?php echo $product['origin'] === 'Columbia' ? 'selected' : ''; ?>>Columbia</option>
+                    <option value="Brazil" <?php echo $product['origin'] === 'Brazil' ? 'selected' : ''; ?>>Brazil</option>
+                    <option value="Vietnam" <?php echo $product['origin'] === 'Vietnam' ? 'selected' : ''; ?>>Vietnam</option>
+                    <option value="India" <?php echo $product['origin'] === 'India' ? 'selected' : ''; ?>>India</option>
+                    <option value="Kenya" <?php echo $product['origin'] === 'Kenya' ? 'selected' : ''; ?>>Kenya</option>
+                    <option value="Indonesia" <?php echo $product['origin'] === 'Indonesia' ? 'selected' : ''; ?>>Indonesia</option>
+                    <option value="Mexico" <?php echo $product['origin'] === 'Mexico' ? 'selected' : ''; ?>>Mexico</option>
+                    <option value="Peru" <?php echo $product['origin'] === 'Peru' ? 'selected' : ''; ?>>Peru</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="price">ราคา (บาท)</label>
-                <input type="number" name="price" min="0" step="0.01" required>
+                <input type="number" name="price" min="0" step="0.01" value="<?php echo htmlspecialchars($product['price']); ?>" required>
             </div>
             <div class="form-group">
                 <label for="detail">รายละเอียด</label>
-                <textarea name="detail" rows="4" placeholder="รายละเอียดเพิ่มเติมเกี่ยวกับสินค้า"></textarea>
+                <textarea name="detail" rows="4" placeholder="รายละเอียดเพิ่มเติมเกี่ยวกับสินค้า"><?php echo htmlspecialchars($product['details']); ?></textarea>
             </div>
             <div class="form-group">
-                <label for="image">อัปโหลดรูปภาพ</label>
-                <input type="file" name="image" accept="image/*" required>
+                <label for="image">อัปโหลดรูปภาพใหม่ (ถ้าต้องการเปลี่ยน)</label>
+                <input type="file" name="image" accept="image/*">
+                <p>รูปภาพปัจจุบัน: <img src="gallery_products/<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['product_name']); ?>" style="width: 100px; height: 100px; object-fit: cover; border-radius: 5px;"></p>
             </div>
-            <input type="submit" id="submitBtn" value="บันทึก">
+            <input type="submit" value="บันทึก">
         </form>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+<?php
+$stmt->close();
+$conn->close();
+?>
