@@ -1,5 +1,3 @@
-//* หน้าตะกร้าสินค้า */
-//* cart.php */
 <?php
 session_start();
 include "conn.php";

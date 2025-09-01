@@ -276,6 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <nav class="navbar">
         <a href="showProduct.php">รายการสินค้า</a>
         <a href="show_profile.php">โปรไฟล์</a>
+        <a href="cart.php">ตะกร้าสินค้า</a>
         <a href="logout.php">ออกจากระบบ</a>
     </nav>
 
