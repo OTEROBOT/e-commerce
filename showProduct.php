@@ -123,12 +123,18 @@ if (!empty($keyword)) {
                         <p class="fw-bold text-success mb-2">
                             ฿<?php echo number_format($row['price'], 2); ?>
                         </p>
-                        <div class="mt-auto">
-                            <a href="cart.php?action=add&id=<?php echo $row['productID']; ?>" 
-                               class="btn btn-primary w-100">
-                               🛒 หยิบใส่ตะกร้า
-                            </a>
-                        </div>
+                        <div class="mt-auto d-flex gap-2">
+    <a href="product_detail2.php?id=<?php echo $row['productID']; ?>" 
+   class="btn btn-outline-secondary w-100">
+   🔎 ดูรายละเอียด
+</a>
+
+    <a href="cart.php?action=add&id=<?php echo $row['productID']; ?>" 
+       class="btn btn-primary w-100">
+       🛒 หยิบใส่ตะกร้า
+    </a>
+</div>
+
                     </div>
                 </div>
             </div>
