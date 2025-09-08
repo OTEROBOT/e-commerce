@@ -526,7 +526,9 @@ if (isset($_GET['delete_id'])) {
 <body>
     <div class="navbar">
         <a href="admin_profile.php">โปรไฟล์</a>
-        <a href="showmember.php" style="color: #e0e0e0;">จัดการสมาชิก</a>
+        <a href="product_list.php">ลิสสินค้า</a>
+        <a href="showmember.php">จัดการสมาชิก</a>
+        <a href="adminOrders.php">ดูหน้ารายการสินค้าทั้งหมด</a>
         <a href="logout.php">ออกจากระบบ</a>
     </div>
 

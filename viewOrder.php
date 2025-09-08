@@ -1,4 +1,6 @@
 <?php
+// viewOrder.php
+// แสดงรายละเอียดคำสั่งซื้อเฉพาะรายการของลูกค้าที่ล็อกอินอยู่ในถานะAdmin
 include "check_session.php";
 include "conn.php";
 
@@ -146,7 +148,7 @@ $resultDetails = $stmtDetail->get_result();
         ราคารวมทั้งหมด: <?php echo number_format($order['total_price'], 2); ?> บาท
     </div>
 
-    <a href="showProduct.php" class="btn">⬅️ กลับไปเลือกซื้อสินค้า</a>
+    <a href="myOrders.php" class="btn">⬅️ กลับไปหน้าคำสั่งซื้อของฉัน</a>
 </div>
 
 </body>

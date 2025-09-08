@@ -1,4 +1,6 @@
 <?php
+// myOrders.php
+// แสดงรายการคำสั่งซื้อของลูกค้าที่ล็อกอินอยู่สำหรับดูประวัติการสั่งซื้อของลูกค้า
 include "check_session.php";
 include "conn.php";
 

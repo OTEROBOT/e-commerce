@@ -1,4 +1,8 @@
 <?php
+// admin_profile.php
+// แสดงและแก้ไขโปรไฟล์ของแอดมิน
+// รวมถึงการอัปโหลดภาพโปรไฟล์
+// ตรวจสอบสถานะแอดมินก่อนเข้าถึงหน้านี้
 session_start();
 include "check_session.php";
 include "conn.php";
@@ -189,6 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         <a href="admin_profile.php">โปรไฟล์</a>
         <a href="product_list.php">ลิสสินค้า</a>
         <a href="showmember.php">จัดการสมาชิก</a>
+        <a href="adminOrders.php">ดูหน้ารายการสินค้าทั้งหมด</a>
         <a href="logout.php">ออกจากระบบ</a>
     </div>
 

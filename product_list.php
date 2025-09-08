@@ -137,12 +137,13 @@ $result = $conn->query($sql);
     </style>
 </head>
 <body>
-    <nav class="navbar">
+    <div class="navbar">
         <a href="admin_profile.php">โปรไฟล์</a>
         <a href="product_list.php">ลิสสินค้า</a>
         <a href="showmember.php">จัดการสมาชิก</a>
+        <a href="adminOrders.php">ดูหน้ารายการสินค้าทั้งหมด</a>
         <a href="logout.php">ออกจากระบบ</a>
-    </nav>
+    </div>
 
     <div class="container">
         <h2>รายการสินค้า</h2>
