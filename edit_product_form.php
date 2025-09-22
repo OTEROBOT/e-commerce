@@ -1,4 +1,6 @@
 <?php
+// edit_product_form.php
+// ฟอร์มแก้ไขสินค้า (สำหรับแอดมิน)
 include "check_session.php";
 include "conn.php";
 

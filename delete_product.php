@@ -1,42 +1,63 @@
 <?php
-include "check_session.php";
 include "conn.php";
+include "check_session.php";
+
+header('Content-Type: application/json');
 
 if (!$_SESSION['is_admin']) {
-    header("Location: login_form.php?error=" . urlencode("คุณไม่มีสิทธิ์เข้าถึงหน้านี้"));
+    echo json_encode(['success' => false, 'message' => 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้']);
     exit();
 }
 
-if (!isset($_GET['productID'])) {
-    header("Location: product_list.php?error=" . urlencode("ไม่พบรหัสสินค้า"));
+if (!isset($_POST['productID']) || empty($_POST['productID'])) {
+    echo json_encode(['success' => false, 'message' => 'รหัสสินค้าไม่ถูกต้อง']);
     exit();
 }
 
-$productID = $_GET['productID'];
+$productID = mysqli_real_escape_string($conn, $_POST['productID']);
 
-// ดึงข้อมูลรูปภาพเพื่อลบไฟล์
-$sql = "SELECT image FROM product WHERE productID = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $productID);
-$stmt->execute();
-$result = $stmt->get_result();
-$product = $result->fetch_assoc();
+$conn->begin_transaction();
 
-if ($product && !empty($product['image']) && file_exists("gallery_products/" . $product['image'])) {
-    unlink("gallery_products/" . $product['image']);
+try {
+    $sql = "SELECT image FROM product WHERE productID = ?";
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        throw new Exception("Prepare statement failed: " . $conn->error);
+    }
+    $stmt->bind_param("s", $productID);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $image = $row['image'];
+
+        $sql_delete = "DELETE FROM product WHERE productID = ?";
+        $stmt_delete = $conn->prepare($sql_delete);
+        if (!$stmt_delete) {
+            throw new Exception("Prepare statement failed: " . $conn->error);
+        }
+        $stmt_delete->bind_param("s", $productID);
+        if ($stmt_delete->execute()) {
+            if (!empty($image) && file_exists("gallery_products/" . $image) && $image !== 'default.png') {
+                if (!unlink("gallery_products/" . $image)) {
+                    throw new Exception("ไม่สามารถลบไฟล์รูปภาพได้");
+                }
+            }
+            $conn->commit();
+            echo json_encode(['success' => true, 'message' => 'ลบสินค้าสำเร็จ']);
+        } else {
+            throw new Exception("เกิดข้อผิดพลาดในการลบสินค้า: " . $conn->error);
+        }
+        $stmt_delete->close();
+    } else {
+        throw new Exception("ไม่พบสินค้าที่ต้องการลบ");
+    }
+    $stmt->close();
+} catch (Exception $e) {
+    $conn->rollback();
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 
-// ลบสินค้าจากฐานข้อมูล
-$sql = "DELETE FROM product WHERE productID = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $productID);
-
-if ($stmt->execute()) {
-    header("Location: product_list.php?msg=" . urlencode("ลบสินค้าสำเร็จ"));
-} else {
-    header("Location: product_list.php?error=" . urlencode("เกิดข้อผิดพลาด: " . $conn->error));
-}
-
-$stmt->close();
 $conn->close();
 ?>

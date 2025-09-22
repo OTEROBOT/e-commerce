@@ -576,9 +576,7 @@ if (!empty($keyword)) {
                     <a class="nav-link" href="login_form.php">
                         <i class="fas fa-shopping-cart"></i> ตะกร้าสินค้า
                     </a>
-                    <a class="nav-link" href="login_form.php">
-                        <i class="fas fa-shopping-bag"></i> การสั่งซื้อ
-                    </a>
+                    
                     <a class="nav-link" href="login_form.php">
                         <i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ
                     </a>

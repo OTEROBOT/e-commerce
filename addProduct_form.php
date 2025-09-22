@@ -1,4 +1,6 @@
 <?php
+// addProduct_form.php
+// ฟอร์มเพิ่มสินค้า (สำหรับแอดมิน)
 include "check_session.php";
 if (!$_SESSION['is_admin']) {
     header("Location: login_form.php?error=" . urlencode("คุณไม่มีสิทธิ์เข้าถึงหน้านี้"));

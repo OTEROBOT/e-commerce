@@ -12,4 +12,7 @@ $conn = new mysqli($host, $user, $pw, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+
+// ตั้งค่า charset เพื่อรองรับภาษาไทย
+$conn->set_charset("utf8mb4");
 ?>
