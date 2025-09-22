@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>เข้าสู่ระบบ</title>
+  <title>เข้าสู่ระบบ</title><!-- หน้า login_form.php -->
   <style>
     body {
       font-family: 'Sarabun', sans-serif;
@@ -146,11 +146,12 @@
     <div class="popup error"><?= htmlspecialchars(urldecode($_GET['error'])) ?></div>
   <?php endif; ?>
   <h2>เข้าสู่ระบบ</h2>
-  <form method="POST" action="check_login.php" id="loginForm">
-    <input type="text" name="username" placeholder="ชื่อผู้ใช้" required>
-    <input type="password" name="password" placeholder="รหัสผ่าน" required>
-    <button type="submit">เข้าสู่ระบบ</button>
-  </form>
+  <form method="POST" action="check_login.php<?php echo isset($_GET['redirect']) ? '?redirect=' . urlencode($_GET['redirect']) : ''; ?>" id="loginForm">
+  <input type="text" name="username" placeholder="ชื่อผู้ใช้" required>
+  <input type="password" name="password" placeholder="รหัสผ่าน" required>
+  <button type="submit">เข้าสู่ระบบ</button>
+</form>
+
   <div class="register-link">
     ยังไม่มีบัญชี? <a href="register_form.php">สมัครสมาชิก</a>
   </div>

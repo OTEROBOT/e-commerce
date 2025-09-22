@@ -1,4 +1,5 @@
 <?php
+// check_login.php
   session_start();
   include "conn.php";
 
@@ -28,25 +29,28 @@
       $user = $result->fetch_assoc();
 
       if (password_verify($password, $user['password'])) {
-          $_SESSION['user_id'] = $user['id'];
-          $_SESSION['username'] = $user['username'];
-          $_SESSION['is_admin'] = $user['is_admin'];
-          $_SESSION['sess_id'] = session_id();
-          $stmt->close();
-          $result->close();
-          // เปลี่ยนเส้นทางตามสถานะแอดมิน
-          if ($_SESSION['is_admin'] == 1) {
-              header("Location: admin_profile.php");
-          } else {
-              header("Location: show_profile.php");
-          }
-          exit();
-      } else {
-          $stmt->close();
-          $result->close();
-          header("Location: login_form.php?error=" . urlencode("รหัสผ่านไม่ถูกต้อง"));
-          exit();
-      }
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['username'] = $user['username'];
+    $_SESSION['is_admin'] = $user['is_admin'];
+    $_SESSION['sess_id'] = session_id();
+    $stmt->close();
+    $result->close();
+
+    // ✅ ถ้ามีการส่ง redirect มาจาก login_form.php ให้พากลับไปหน้าที่ตั้งใจเข้า
+    if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
+        header("Location: " . $_GET['redirect']);
+        exit();
+    }
+
+    // ถ้าไม่มี redirect ให้แยกตามสิทธิ์
+    if ($_SESSION['is_admin'] == 1) {
+        header("Location: admin_profile.php");
+    } else {
+        header("Location: showProduct.php");
+    }
+    exit();
+}
+
   } else {
       $stmt->close();
       $result->close();
